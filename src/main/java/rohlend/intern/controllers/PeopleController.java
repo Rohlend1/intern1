@@ -2,13 +2,10 @@ package rohlend.intern.controllers;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import rohlend.intern.dao.PersonDAO;
 
-@Controller
+@RestController
 @RequestMapping("/people")
 public class PeopleController {
     private final PersonDAO personDAO;
@@ -19,11 +16,16 @@ public class PeopleController {
     }
 
     @GetMapping()
-    public String getPeople(@RequestParam(value = "name",required = false) String name){
+    public String getPeople(@RequestHeader(value = "name",required = false) String name){
         if(name!=null){
             return personDAO.getPeopleByName(name);
         }
         return "hello";
+    }
+
+    @GetMapping("/stat")
+    public String getStats(){
+        return personDAO.getMapJson();
     }
 
 }
