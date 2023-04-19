@@ -1,6 +1,9 @@
 package rohlend.intern.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import rohlend.intern.models.Person;
 import java.io.*;
@@ -14,19 +17,23 @@ import java.util.List;
 @Component
 public class PersonDAO {
 
+
+    private final ResourceLoader resourceLoader;
     private static int id;
 
-    public PersonDAO() {
+    public PersonDAO(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
     }
+
     public String getPeopleByName(String name){
         List<Person> people = new ArrayList<>();
-        ClassPathResource classPathResource = new ClassPathResource("classpath:names.txt");
-        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(classPathResource.getFile()))){
-
+        Resource resource = resourceLoader.getResource("classpath:/static/names.txt");
+        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(resource.getFile()))){
             String[] line;
             while (bufferedReader.ready()){
 
                 line = bufferedReader.readLine().split("_");
+                System.out.println(line[0]);
                 if(name.equals(line[0])){
                     Person person = new Person(id++,name,Integer.parseInt(line[1]));
                     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
