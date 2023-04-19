@@ -23,7 +23,7 @@ public class PeopleController {
         if(name!=null){
             return personDAO.getPeopleByName(name);
         }
-        return null;
+        return "hello";
     }
 
 }
