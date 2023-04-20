@@ -1,6 +1,5 @@
 package rohlend.intern.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -10,10 +9,9 @@ import java.io.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+
 
 @Component
 public class PersonDAO {
@@ -31,17 +29,19 @@ public class PersonDAO {
         return map;
     }
     public String getMapJson(){
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.writeValueAsString(map);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        StringBuilder res = new StringBuilder("{ \"stats\":[");
+        for(var pair : map.entrySet()){
+            res.append(String.format("{ \"name\" : \"%s\",",pair.getKey()))
+                    .append(String.format("\"age\":\"%d\"},",pair.getValue()));
         }
+        res.deleteCharAt(res.length());
+        res.append("]}");
+        return res.toString();
     }
 
     public String getPeopleByName(String name){
+        if(name.equals("")) return String.format("{\"name\" : \"Not found\",\"age\" : \"%d\"}",(int)(Math.random()*101));
         map.put(name,map.getOrDefault(name,0)+1);
-        List<Person> people = new ArrayList<>();
         Resource resource = resourceLoader.getResource("classpath:/static/names.txt");
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader(resource.getFile()))){
             String[] line;
@@ -52,12 +52,11 @@ public class PersonDAO {
                     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
                     return ow.writeValueAsString(person);
                 }
-                people.add(new Person(line[0],Integer.parseInt(line[1])));
             }
         }
         catch (IOException e){
             System.out.println("File not found");
         }
-        return String.format("{\n\"name\" : \"Not found\"\n\"age\" : \"%d\"\n}",new Random().nextInt());
+        return String.format("{\"name\" : \"Not found\",\"age\" : \"%d\"}",(int)(Math.random()*101));
     }
 }
