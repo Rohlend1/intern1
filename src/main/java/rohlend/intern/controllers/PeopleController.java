@@ -28,4 +28,9 @@ public class PeopleController {
         return personDAO.getMapJson();
     }
 
+    @GetMapping("/stat/get_max_age")
+    public String getMaxAge(){
+        return personDAO.getMaxAge();
+    }
+
 }

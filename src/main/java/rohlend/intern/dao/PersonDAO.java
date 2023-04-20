@@ -34,14 +34,33 @@ public class PersonDAO {
             res.append(String.format("{ \"name\" : \"%s\",",pair.getKey()))
                     .append(String.format("\"age\":\"%d\"},",pair.getValue()));
         }
-        res.deleteCharAt(res.length());
+        res.deleteCharAt(res.length()-1);
         res.append("]}");
         return res.toString();
     }
 
+    public String getMaxAge(){
+        Resource resource = resourceLoader.getResource("classpath:/static/names.txt");
+        int age = -1;
+        String name = null;
+        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(resource.getFile()))){
+            String[] line;
+            while (bufferedReader.ready()){
+                line = bufferedReader.readLine().split("_");
+                int comparingAge = Integer.parseInt(line[1]);
+                if(age < comparingAge){
+                    age = comparingAge;
+                    name = line[0];
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return String.format("{\"name\" : \"%s\",\"age\" : \"%d\"}",name,age);
+    }
+
     public String getPeopleByName(String name){
         if(name.equals("")) return String.format("{\"name\" : \"Not found\",\"age\" : \"%d\"}",(int)(Math.random()*101));
-        map.put(name,map.getOrDefault(name,0)+1);
         Resource resource = resourceLoader.getResource("classpath:/static/names.txt");
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader(resource.getFile()))){
             String[] line;
@@ -50,6 +69,7 @@ public class PersonDAO {
                 if(name.equals(line[0])){
                     Person person = new Person(name,Integer.parseInt(line[1]));
                     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                    map.put(name,map.getOrDefault(name,0)+1);
                     return ow.writeValueAsString(person);
                 }
             }
